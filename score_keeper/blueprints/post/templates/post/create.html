@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as macros %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-12 col-lg-8">
+            <h3>{% if post %}Edit{% else %}Create{% endif %} Post</h3>
+            <form class="ajax" method="{% if post %}PATCH{% else %}POST{% endif %}"
+                action="{% if post %}{{ url_for('api.post.update', id=post.id) }}{% else %}{{ url_for('api.post.create') }}{% endif %}">
+                <input name="r" type="hidden" value="{{ r }}" />
+                {{ macros.text('title', post) }}
+                {{ macros.textarea('content', post) }}
+                {{ macros.select('status', post, status_options) }}
+                <div class="text-end">
+                    <a class="btn btn-secondary"
+                        href="{{ url_for('.view', id=post.id) if post else url_for('.index') }}">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="d-none loading-spinner spinner-border spinner-border-sm"></span>
+                        Submit
+                    </button>
+                    <div class="status"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

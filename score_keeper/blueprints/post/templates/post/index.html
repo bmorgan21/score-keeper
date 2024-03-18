@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+
+{% block content %}
+<div class="col-12 col-lg-8">
+    <div class="float-end mt-2">
+        <a class="btn btn-primary btn-sm" href="{{ url_for('.create') }}"><i class="bi bi-file-earmark-plus"></i> Create
+            Post</a>
+    </div>
+    <ul class="nav nav-underline mb-2">
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'published' %}active{% endif %}" aria-current="page"
+                href="{{ url_for('post.index', status='published') }}">All Posts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'mine-published' %}active{% endif %}"
+                href="{{ url_for('post.index', status='published', author_id=current_user.id) }}">My Published
+                Posts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'mine-draft' %}active{% endif %}"
+                href="{{ url_for('post.index', status='draft', author_id=current_user.id) }}">My Pending
+                Posts</a>
+        </li>
+    </ul>
+
+    <div class="my-3 p-3 pt-0 bg-body rounded shadow-sm">
+        {% for post in resultset.posts %}
+        <div class="d-flex text-body-secondary pt-3">
+            {{ macros.user_icon(post.author, 32, "me-2")}}
+            <div class="pb-3 mb-0 small lh-sm {% if not loop.last %}border-bottom {% endif %}flex-grow-1">
+                <div class="d-flex justify-content-between">
+                    <a class="fw-bold" href="{{ url_for('post.view', id=post.id) }}">{{ post.title }}</a>
+                </div>
+                <span class="d-block">{{ post.content|markdown|striptags|truncate(200) }}</span>
+            </div>
+            <div class="pb-3 mb-0 {% if not loop.last %}border-bottom {% endif %}small lh-sm flex-shrink-0">
+                <div class="text-muted text-end">
+                    {% if post.status == "published" %}
+                    <strong>Published</strong><br /> {{ post.published_at|ago }}
+                    {% else %}
+                    <strong>Updated</strong><br /> {{ post.modified_at|ago }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="pt-3">
+            No Posts Found.
+        </div>
+        {% endfor %}
+    </div>
+
+    {{ macros.pagination(resultset.pagination.current_page, resultset.pagination.num_pages, relative_url_for) }}
+</div>
+{% endblock content %}

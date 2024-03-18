@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('.index', status='published') }}">Blog</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Library</li>
+    </ol>
+</nav>
+
+<div class="pb-2">
+    {% if can_edit %}
+    <a class="btn btn-primary btn-sm float-end ms-2" href="{{ url_for('.update', id=post.id) }}"><i
+            class="bi bi-pencil"></i>
+        Edit Post</a>
+    {% endif %}
+    <span class="button-group float-end ms-2">
+        <a href="{{ url_for('api.post.like', id=post.id) }}" data-method="DELETE" data-callback="updateLike"
+            class="btn btn-primary btn-sm {% if not post_like %}d-none{% endif %}"><i class="bi bi-hand-thumbs-up"></i>
+            Like</a>
+        <a href="{{ url_for('api.post.like', id=post.id) }}" data-method="PUT" data-callback="updateLike"
+            class="btn btn-outline-primary btn-sm {% if post_like %}d-none{% endif %}"><i
+                class="bi bi-hand-thumbs-up"></i> Like</a>
+    </span>
+    <h3>{{ post.title }}</h3>
+    <div class="small mb-2">{% if post.status == 'published' %}<span class="text-muted">Published</span> {{
+        post.published_at|ago }} &bullet; {% endif %}
+        <span class="text-muted">Modified</span> {{post.modified_at|format_datetime('%-I:%M %p, %a %B %-d, %Y') }}
+        &bullet;
+        <span class="text-muted">Viewed</span> <span class="num-views">{{ post.viewed }}</span> &bullet;
+    </div>
+
+    <div class="text-muted">
+        {{ macros.user_icon(post.author, 60, class="me-2") }}
+        By {{ post.author.name }}
+    </div>
+</div>
+<div class="mt-3">
+    {{ post.content|markdown }}
+</div>
+<div class="mt-3 border-top">
+    <h6 class="mt-3">Current Viewers</h6>
+    <div class="viewers">
+
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script type="text/javascript">
+    function updateLike(link, data) {
+        const buttonGroup = link.closest('.button-group');
+        const deleteButton = buttonGroup.querySelector('a[data-method="DELETE"]');
+        const putButton = buttonGroup.querySelector('a[data-method="PUT"]');
+
+        const method = link.getAttribute('data-method');
+        if (method == 'PUT') {
+            putButton.classList.add('d-none');
+            deleteButton.classList.remove('d-none');
+        } else if (method == 'DELETE') {
+            putButton.classList.remove('d-none');
+            deleteButton.classList.add('d-none');
+        }
+    }
+</script>
+<script type="text/javascript">
+    const num_viewed = document.querySelector('.num-views');
+
+    function onmessageCallback(message) {
+        const obj = JSON.parse(message);
+        var sessionId = obj['session_id'];
+
+        if (obj['type'] == 'view') {
+            num_viewed.innerText = obj['data'];
+        } else if (obj['type'] == 'connected') {
+            var data = obj['data']
+
+            var existing = document.querySelector('span.id-' + sessionId);
+            if (!existing) {
+                const viewers = document.querySelector('div.viewers');
+                const span = document.createElement('span');
+                span.classList.add(`id-${sessionId}`);
+                span.classList.add('me-1');
+                span.innerHTML = `<img title="${data['name']}" width="32" height="32" class="rounded-circle" src="${data['picture']}" />`
+                viewers.appendChild(span);
+            }
+        } else if (obj['type'] == 'disconnected') {
+            document.querySelectorAll('span.id-' + sessionId).forEach((span) => {
+                span.remove();
+            });
+        }
+    }
+
+    initWS("{{ url_for('post.ws', id=post.id, SESSION_ID=uuid4()) }}", onmessageCallback);
+</script>
+{% endblock script %}

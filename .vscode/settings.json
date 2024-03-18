@@ -1,0 +1,19 @@
+{
+    "files.autoSave": "off",
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    "isort.check": true,
+    "dateTime.showDayOfMonth": true,
+    "dateTime.showMonth": true,
+    "dateTime.showAMPM": true,
+    "dateTime.use24HourClock": false,
+    "dateTime.timeZone": "America/New_York",
+    "editor.defaultFormatter": null,
+    "python.defaultInterpreterPath": "/home/vscode/venv/bin/python3",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+}

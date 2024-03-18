@@ -1,0 +1,86 @@
+{% macro pagination(current_page, num_pages, base_url_for) -%}
+{% if num_pages > 1 %}
+<nav>
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+            <a {% if current_page> 1 %}href="{{ base_url_for(p=1) }}" {% endif %}
+                class="page-link">&laquo;</a>
+        </li>
+        <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+            <a {% if current_page> 1 %}href="{{ base_url_for(p=current_page-1) }}" {% endif %}
+                class="page-link">Previous</a>
+        </li>
+
+        {% set min_page=[1, [current_page-2, num_pages-4]|min]|max %}
+        {% set max_page=[min_page+4, num_pages]|min %}
+
+        {% for page in range(min_page, max_page+1) %}
+        <li class="page-item"><a class="page-link {% if current_page == page %}active{% endif %}"
+                href="{{ base_url_for(p=page) }}">{{ page
+                }}</a></li>
+        {% endfor %}
+
+        <li class="page-item">
+            <a class="page-link {% if current_page >= num_pages %}disabled{% endif %}" {% if current_page < num_pages
+                %}href="{{ base_url_for(p=current_page+1) }}" {% endif %}>Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link {% if current_page >= num_pages %}disabled{% endif %}" {% if current_page < num_pages
+                %}href="{{ base_url_for(p=num_pages) }}" {% endif %}>&raquo;</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{% macro sort_header_link(name, display_name, sort, base_url_for) -%}
+{% set reverse_name='-'+name %}
+<a href="{{ base_url_for(sort=reverse_name if sort == name else name) }}">{{ display_name }}
+    {%- if sort == name %}<i class="bi bi-caret-up-fill"></i>{% endif -%}
+    {%- if sort == reverse_name %}<i class="bi bi-caret-down-fill"></i>{% endif -%}
+</a>
+{%- endmacro %}
+
+{% macro user_icon(user, size, class="") -%}
+{% if user.picture %}
+<img width="{{ size }}" height="{{ size }}" src="{{ user.picture }}" class="rounded {{ class }}" />
+{% else %}
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ size }}" height="{{ size }}" fill="white"
+    class="bi bi-person rounded bg-secondary bg-gradient {{ class }}" viewBox="0 0 16 16">
+    <path
+        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664z" />
+</svg>
+{% endif %}
+{%- endmacro %}
+
+{% macro text(name, obj, type="text", placeholder=None, label=None, class="mb-3") -%}
+<div class="form-floating {{ class }}">
+    <input name="{{ name }}" type="{{ type }}" class="form-control" id="floating{{ name|title }}"
+        placeholder="{{ placeholder|default(name|title, true) }}"
+        value="{{ obj|default(none)|attr(name)|none_to_empty }}">
+    <label for="floating{{ name|title }}">{{ label|default(name|title, true) }}</label>
+</div>
+{%- endmacro %}
+
+{% macro textarea(name, obj, placeholder=None, label=None, class="mb-3") -%}
+<div class="form-floating {{ class }}">
+    <textarea name="{{ name }}" class="form-control" id="floating{{ name|title }}"
+        placeholder="{{ placeholder|default(name|title, true) }}"
+        style="height: 300px">{{ obj|default(none)|attr(name)|none_to_empty }}</textarea>
+    <label for="floating{{ name|title }}">{{ label|default(name|title, true) }}</label>
+</div>
+{%- endmacro %}
+
+{% macro select(name, obj, options, placeholder=None, label=None, class="mb-3") -%}
+{% set selected = obj|default(none)|attr(name)|none_to_empty %}
+<div class="form-floating {{ class }}">
+    <select name="status" class="form-select" id="floating{{ name|title }}">
+        <option value>[Select {{ name|title }}]</option>
+        {% for label, value in options %}
+        <option value="{{ value }}" {{ 'SELECTED' if selected==value }}>
+            {{ label }}</option>
+        {% endfor %}
+    </select>
+    <label for="floating{{ name|title }}">{{ label|default(name|title, true) }}</label>
+</div>
+{%- endmacro %}

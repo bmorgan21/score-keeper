@@ -1,0 +1,16 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">{% block title %}{% endblock title %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <form {{ self.form_details() }}>
+        <div class="modal-body">
+            {% block body %}{% endblock body %}
+        </div>
+        <div class="modal-footer d-flex">
+            <div class="status flex-grow-1 align-items-center flex-column"></div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            {% block buttons %}{% endblock buttons %}
+        </div>
+    </form>
+</div>

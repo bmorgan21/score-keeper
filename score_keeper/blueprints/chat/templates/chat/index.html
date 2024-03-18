@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-12 col-lg-6 offset-lg-3">
+    <div class="card" style="margin-bottom:75px;">
+        <h5 class="card-header text-bg-primary">Public Chat</h5>
+        <div id="messageList" class="card-body text-bg-info pb-0" style="min-height:100px;">
+            <div id="otherTemplate" class="d-flex justify-content-start mb-2 d-none">
+                <div class="badge rounded-pill text-bg-light">
+                    <span class="me-1">
+                        <img width="25" height="25" class="rounded">
+                    </span>
+                    <span class="message">
+                    </span>
+                </div>
+            </div>
+            <div id="systemTemplate" class="d-flex justify-content-center mb-2 d-none">
+                <div class="message fw-lighter fst-italic small">
+                    User 10 connected to channel - channel
+                </div>
+            </div>
+            <div id="meTemplate" class="d-flex justify-content-end mb-2 d-none">
+                <div class="badge rounded-pill text-bg-light d-flex flex-row-reverse align-items-center">
+                    <span class="ms-1">
+                        <img width="25" height="25" class="rounded">
+                    </span>
+                    <span class="message">
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="fixed-bottom p-2 pb-4 col-12 col-lg-6 offset-lg-3">
+    <form onsubmit="return send(event);">
+        <div class="d-flex">
+            <input class="form-control me-2" type="text" name="message" minlength="1" autofocus="autofocus"
+                autocomplete="off" />
+            <button class="btn btn-primary rounded" type="submit">Send</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+{% set SESSION_ID = uuid4() %}
+<script type="text/javascript">
+    const SESSION_ID = "{{ SESSION_ID }}";
+
+    const otherTemplate = document.getElementById('otherTemplate');
+    const systemTemplate = document.getElementById('systemTemplate');
+    const meTemplate = document.getElementById('meTemplate');
+    const messageList = document.getElementById('messageList');
+
+    function onmessageCallback(message) {
+        message = JSON.parse(message);
+        const sessionId = message['session_id'];
+        const data = message['data'];
+
+        if (message['type'] == 'connected' || message['type'] == 'disconnected') {
+            const messageElement = systemTemplate.cloneNode(true);
+            messageElement.classList.remove('d-none');
+            messageElement.removeAttribute('id');
+
+            const m = messageElement.querySelector('.message');
+            m.innerText = `${data['name']} ${message['type']}`;
+
+            messageList.appendChild(messageElement);
+        } else {
+            let messageElement;
+            if (sessionId == SESSION_ID) {
+                messageElement = meTemplate.cloneNode(true);
+            } else {
+                messageElement = otherTemplate.cloneNode(true);
+            }
+
+            messageElement.classList.remove('d-none');
+            messageElement.removeAttribute('id');
+
+            const m = messageElement.querySelector('.message');
+            m.innerText = message['message'];
+
+            const img = messageElement.querySelector('img');
+            img.src = data['picture'];
+
+            messageList.appendChild(messageElement);
+        }
+
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    const WS = initWS("{{ url_for('chat.ws', SESSION_ID=SESSION_ID) }}", onmessageCallback);
+
+    function send(event) {
+        const message = (new FormData(event.target)).get("message");
+        if (message) {
+            WS.send(message);
+        }
+        event.target.reset();
+        return false;
+    }
+</script>
+{% endblock script %}

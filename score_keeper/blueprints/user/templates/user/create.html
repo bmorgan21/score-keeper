@@ -1,0 +1,36 @@
+{% extends base_template|default('base.html', true) %}
+{% import 'macros.html' as macros %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-12 col-lg-8">
+            <h3>{% block title %}{% if user %}Edit{% else %}Create{% endif %} Profile{% endblock title %}</h3>
+            <form {% block form_details %}class="ajax" target="_top"
+                method="{% if user %}PATCH{% else %}POST{% endif %}"
+                action="{% if user %}{{ url_for('api.user.update', id=user.id) }}{% else %}{{ url_for('api.user.create') }}{% endif %}"
+                {% endblock form_details %}>
+                <div class="text-end">
+                    {% block body %}
+                    {{ macros.text('name', user) }}
+                    {{ macros.text('email', user) }}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">{{ macros.user_icon(user, size=40) }}</span>
+                        {{ macros.text('picture', user, class=none) }}
+                    </div>
+                    {% endblock body %}
+
+                    {% block buttons %}
+                    <button type="submit" class="btn btn-primary">
+                        <span class="d-none loading-spinner spinner-border spinner-border-sm"></span>
+                        Submit
+                    </button>
+                    {% endblock buttons %}
+
+                    <div class="status"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

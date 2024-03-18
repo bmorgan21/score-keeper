@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as macros %}
+
+{% block content %}
+<div class="form-signin w-100 m-auto">
+    <div style="width:330px" class="m-auto">
+        <form class="ajax" method="POST" action="{{ url_for('api.auth.user_create') }}">
+            <input name="r" type="hidden" value="{{ r }}" />
+            <h3 class="mb-3 fw-normal">Sign Up</h3>
+
+            {{ macros.text('email', none, type='email', placeholder='name@example.com', label='Email Address') }}
+            {{ macros.text('password', none, type='password') }}
+            {{ macros.text('confirm_password', none, type='password', placeholder='Password', label='Confirm Password')
+            }}
+
+            <button class="w-100 btn btn-lg btn-primary" type="submit">
+                <span class="d-none loading-spinner spinner-border spinner-border-sm"></span>
+                Sign Up
+            </button>
+            <div class="status"></div>
+        </form>
+    </div>
+
+    <div class="text-center">
+        Already have an account? <a href="{{ url_for('auth.login', r=r) }}">Log In</a>
+        <center>OR</center>
+        <a class=" btn btn-primary btn-lg px-0 py-0" href="{{ url_for('google_auth.login', r=r) }}">
+            <img class="rounded" src="{{ url_for('.static', filename='images/google.png') }}" alt="" height="50px">
+            <span class="ms-3 me-3">Sign in with Google</span>
+        </a>
+    </div>
+</div>
+</div>
+{% endblock content %}

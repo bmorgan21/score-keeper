@@ -1,0 +1,20 @@
+[tool.aerich]
+tortoise_orm = "score_keeper.settings.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
+
+[tool.pylint.messages_control]
+disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "too-few-public-methods",
+  "invalid-name",
+  "redefined-builtin",
+  "too-many-locals",
+  "too-many-return-statements",
+  "too-many-arguments"
+]
+enable = [
+  "wrong-import-order"
+]
