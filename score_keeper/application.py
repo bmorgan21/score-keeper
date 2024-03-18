@@ -86,12 +86,12 @@ def create_app(**config_overrides):
     app = Quart(__name__, static_folder="static")
     app.asgi_app = ProxyMiddleware(app.asgi_app)
 
+    app.config.from_object(settings)
+    app.config.update(config_overrides)
+    
     QuartSchema(app)
     auth_manager = MyQuartAuth(app)
     auth_manager.user_class = AuthUser
-
-    app.config.from_object(settings)
-    app.config.update(config_overrides)
 
     register_logging(app)
     register_blueprints(app)
