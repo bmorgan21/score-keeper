@@ -23,8 +23,7 @@ Start up Raspberry Pi
 Passwordless Login
 
     $(local) ssh-keygen -t rsa
-    $(raspberry pi) mkdir ~/.ssh
-    $(raspberry pi) chmod 7000 ~/.ssh
+    $(raspberry pi) mkdir ~/.ssh && chmod 700 ~/.ssh
     insert contents of ~/.ssh/id_rsa.pub (local) into ~/.ssh/authorized_keys (raspberry pi)
     
 Install Docker and Add Permissions
