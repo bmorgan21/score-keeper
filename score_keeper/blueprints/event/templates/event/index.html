@@ -31,17 +31,23 @@
     <div class="row g-3">
         {% for event in resultset.events %}
         <div class="col-6">
-            <div class="text-body-secondary p-3 bg-body rounded shadow-sm">
-                <a href="{{ url_for('event.view', id=event.id) }}">
-                    {% for c in event.competitors|sort(attribute='home_away') %}
+            <div class="p-3 bg-body rounded shadow-sm">
+                <a class="text-decoration-none text-primary-emphasis" href="{{ url_for('event.view', id=event.id) }}">
                     <div class="row">
-                        <div class="col-10">{{ c.team.name|default(c.home_away|title) }}</div>
-                        <div id="competitor-{{ c.id }}-score" class="col-2 text-end">{{ c.score }}</div>
+                        <div class="col-10">{{ event.away_team_name }}</div>
+                        <div id="away-score" class="col-2 text-end">{{ event.away_score }}</div>
                     </div>
-                    {% endfor %}
 
-                    <div class="pt-3 mb-0 small lh-sm flex-shrink-0">
-                        <div class="text-muted text-end">
+                    <div class="row">
+                        <div class="col-10">{{ event.home_team_name }}</div>
+                        <div id="home-score" class="col-2 text-end">{{ event.home_score }}</div>
+                    </div>
+
+                    <div class="row pt-2 small text-secondary">
+                        <div class="col-6">
+                            [ {{ event.verbose_status }} ]
+                        </div>
+                        <div class="col-6 text-end">
                             <strong>Last Updated:</strong> {{ event.modified_at|ago }}
                         </div>
                     </div>

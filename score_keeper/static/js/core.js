@@ -28,9 +28,22 @@ methodLinks.forEach(link => {
 
         const callbackFuncName = link.getAttribute('data-callback');
 
-        fetch(evt.target.href, {
+        var fetch_data = {
             method: link.getAttribute('data-method') || 'GET'
-        }).then(response => {
+        }
+
+        const dataFuncName = link.getAttribute('data-func');
+        if (dataFuncName) {
+            const result = executeFunctionByName(dataFuncName, window, link);
+
+            fetch_data['body'] = JSON.stringify(result);
+            fetch_data['headers'] = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }
+
+        fetch(link.href, fetch_data).then(response => {
             if (response.ok) {
                 response.json().then(data => {
                     if (callbackFuncName) {

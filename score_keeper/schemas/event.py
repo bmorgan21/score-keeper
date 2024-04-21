@@ -17,46 +17,52 @@ from .query import Query
 from .team import Team
 from .user import UserPublic
 
-HOME_AWAY_VALIDATOR = enums.HomeAway
 PERIOD_VALIDATOR = int
 SCORE_VALIDATOR = int
 SEASON_VALIDATOR = int
 STATUS_VALIDATOR = enums.EventStatus
 
 
-class CompetitorCreate(BaseModel):
-    home_away: HOME_AWAY_VALIDATOR
-    team_id: int = None
+class EventScoreCreate(BaseModel):
+    away_delta: int = NOTSET
+    home_delta: int = NOTSET
+
+    away_score: int
+    home_score: int
+
+    comment: str = NOTSET
 
 
-class CompetitorPatch(BaseModel):
-    home_away: HOME_AWAY_VALIDATOR = NOTSET
-    score: SCORE_VALIDATOR = NOTSET
-    team_id: int = NOTSET
-
-
-class Competitor(BaseModel):
+class EventScore(BaseModel):
     id: int
-    home_away: str
-    score: int
     created_at: datetime
     modified_at: datetime
 
-    event_id: int
-    team_id: Optional[int]
-    team: Optional[Team]
+    away_delta: Optional[int]
+    home_delta: Optional[int]
 
-    _remove_queryset = field_validator("team", mode="before")(remove_queryset)
+    away_score: int
+    home_score: int
+
+    comment: Optional[str]
+
+    event_id: int
 
 
 class EventCreate(BaseModel):
     season: SEASON_VALIDATOR
+    away_team_id: Optional[int] = None
+    home_team_id: Optional[int] = None
 
 
 class EventPatch(BaseModel):
     period: PERIOD_VALIDATOR = NOTSET
     season: SEASON_VALIDATOR = NOTSET
     status: STATUS_VALIDATOR = NOTSET
+    away_team_id: int = NOTSET
+    away_score: SCORE_VALIDATOR = NOTSET
+    home_team_id: int = NOTSET
+    home_score: SCORE_VALIDATOR = NOTSET
 
 
 class Event(BaseModel):
@@ -71,12 +77,41 @@ class Event(BaseModel):
     created_by_id: int
     created_by: Optional[UserPublic]
 
-    competitors: Optional[List[Competitor]]
+    away_team_id: Optional[int]
+    away_team: Optional[Team]
+    away_score: int
 
-    _remove_queryset = field_validator("created_by", mode="before")(remove_queryset)
-    _remove_reverse_relation = field_validator("competitors", mode="before")(
+    home_team_id: Optional[int]
+    home_team: Optional[Team]
+    home_score: int
+
+    scores: Optional[List[EventScore]]
+
+    _remove_queryset = field_validator(
+        "created_by", "away_team", "home_team", mode="before"
+    )(remove_queryset)
+
+    _remove_reverse_relation = field_validator("scores", mode="before")(
         remove_reverse_relation
     )
+
+    @property
+    def away_team_name(self):
+        return self.away_team.name if self.away_team else "Away"
+
+    @property
+    def home_team_name(self):
+        return self.home_team.name if self.home_team else "Home"
+
+    @property
+    def verbose_status(self):
+        if self.status == "not-started":
+            return "Not Started"
+        elif self.status == "in-progress":
+            return "In Progress"
+        elif self.status == "ended":
+            return "Ended"
+        return self.status
 
 
 class EventFilterField(enums.EnumStr):
@@ -101,8 +136,9 @@ class EventSort(enums.EnumStr):
 
 class EventResolve(enums.EnumStr):
     CREATED_BY = "created_by"
-    COMPETITORS = "competitors"
-    COMPETITORS_TEAM = "competitors__team"
+    AWAY_TEAM = "away_team"
+    HOME_TEAM = "home_team"
+    SCORES = "scores"
 
 
 class EventGetOptions(BaseModel):

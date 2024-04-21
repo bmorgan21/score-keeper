@@ -21,6 +21,16 @@ class Event(TimestampMixin, Model):
     period = fields.IntField(default=1)
     status_as_of = fields.DatetimeField(auto_now_add=True)
 
+    home_team: fields.ForeignKeyRelation[Team] = fields.ForeignKeyField(
+        "models.Team", null=True, related_name="home_events"
+    )
+    home_score = fields.IntField(default=0)
+
+    away_team: fields.ForeignKeyRelation[Team] = fields.ForeignKeyField(
+        "models.Team", null=True, related_name="away_events"
+    )
+    away_score = fields.IntField(default=0)
+
     created_by: fields.ForeignKeyRelation[User] = fields.ForeignKeyField(
         "models.User", related_name="events"
     )
@@ -35,17 +45,17 @@ class Event(TimestampMixin, Model):
             self.status_as_of = dt.datetime.now(dt.timezone.utc)
 
 
-class Competitor(TimestampMixin, Model):
+class EventScore(TimestampMixin, Model):
     id = fields.IntField(pk=True)
-    score = fields.IntField(default=0)
-    home_away = fields.CharEnumField(enums.HomeAway, max_length=16)
+
+    away_delta = fields.IntField(default=0)
+    home_delta = fields.IntField(default=0)
+
+    away_score = fields.IntField()
+    home_score = fields.IntField()
+
+    comment = fields.TextField(null=True)
 
     event: fields.ForeignKeyRelation[Event] = fields.ForeignKeyField(
-        "models.Event", related_name="competitors"
+        "models.Event", related_name="scores"
     )
-    team: fields.ForeignKeyRelation[Team] = fields.ForeignKeyField(
-        "models.Team", null=True
-    )
-
-    class Meta:
-        unique_together = ("event_id", "home_away")

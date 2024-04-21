@@ -61,31 +61,10 @@ async def delete(id: int) -> schemas.DeleteConfirmed:
     return schemas.DeleteConfirmed(id=id)
 
 
-@blueprint.post("/<int:id>/competitor")
-@validate_request(schemas.CompetitorCreate)
-@validate_response(schemas.Competitor, 201)
+@blueprint.post("/<int:id>/score")
+@validate_request(schemas.EventScoreCreate)
+@validate_response(schemas.Event, 201)
 @atomic()
 @login_required
-async def competitor_create(
-    id: int, data: schemas.CompetitorCreate
-) -> schemas.Competitor:
-    return (
-        await actions.event.competitor_create(await current_user.get_user(), id, data),
-        201,
-    )
-
-
-@blueprint.patch("/<int:id>/competitor/<int:competitor_id>")
-@validate_request(schemas.CompetitorPatch)
-@validate_response(schemas.Competitor, 201)
-@atomic()
-@login_required
-async def competitor_update(
-    id: int, competitor_id: int, data: schemas.CompetitorPatch
-) -> schemas.Competitor:
-    return (
-        await actions.event.competitor_update(
-            await current_user.get_user(), id, competitor_id, data
-        ),
-        201,
-    )
+async def score(id: int, data: schemas.EventScoreCreate) -> schemas.Event:
+    return await actions.event.score(await current_user.get_user(), id, data), 201

@@ -79,13 +79,6 @@ async def create(user: schemas.User, data: schemas.EventCreate) -> schemas.Event
 
     await event.save()
 
-    await competitor_create(
-        user, event.id, schemas.CompetitorCreate(home_away=enums.HomeAway.AWAY)
-    )
-    await competitor_create(
-        user, event.id, schemas.CompetitorCreate(home_away=enums.HomeAway.HOME)
-    )
-
     return schemas.Event.model_validate(event)
 
 
@@ -114,61 +107,60 @@ async def update(
 
     conditional_set(event, "season", data.season)
     conditional_set(event, "period", data.period)
+    conditional_set(event, "away_team_id", data.away_team_id)
+    conditional_set(event, "away_score", data.away_score)
+    conditional_set(event, "home_team_id", data.home_team_id)
+    conditional_set(event, "home_score", data.home_score)
 
     if data.status != schemas.NOTSET:
         event.update_status(data.status)
 
     await event.save()
 
-    return schemas.Event.model_validate(event)
+    schema_event = schemas.Event.model_validate(event)
 
-
-@handle_orm_errors
-async def competitor_create(
-    user: schemas.User, id: int, data: schemas.CompetitorCreate
-) -> schemas.Competitor:
-    event = await models.Event.get(id=id)
-
-    if not has_permission(
-        user, schemas.Event.model_validate(event), enums.Permission.UPDATE
-    ):
-        raise ForbiddenActionError()
-
-    competitor = await models.Competitor.create(
-        event_id=id, team_id=data.team_id, home_away=data.home_away
-    )
-
-    return schemas.Competitor.model_validate(competitor)
-
-
-@handle_orm_errors
-async def competitor_update(
-    user: schemas.User, id: int, competitor_id: int, data: schemas.CompetitorPatch
-) -> schemas.Competitor:
-    event = await models.Event.get(id=id)
-
-    if not has_permission(
-        user, schemas.Event.model_validate(event), enums.Permission.UPDATE
-    ):
-        raise ForbiddenActionError()
-
-    competitor = await models.Competitor.get(id=competitor_id)
-
-    conditional_set(competitor, "home_away", data.home_away)
-    conditional_set(competitor, "team_id", data.team_id)
-    conditional_set(competitor, "score", data.score)
-
-    await competitor.save()
-
-    event = get(
-        user, id, options=schemas.EventGetOptions(resolves=["competitors__team"])
-    )
-
-    mm = MessageManager(user, f"event-{event.id}")
+    mm = MessageManager(user, f"event-{id}")
     await mm.send_message(
         "update",
-        f"Event {event.id} updated",
-        data=json.loads(schemas.Event.model_dump_json(event)),
+        f"Event {id} updated",
+        data=json.loads(schemas.Event.model_dump_json(schema_event)),
     )
 
-    return schemas.Competitor.model_validate(competitor)
+    return schema_event
+
+
+@handle_orm_errors
+async def score(
+    user: schemas.User, id: int, data: schemas.EventScoreCreate
+) -> schemas.Event:
+    event = await models.Event.get(id=id)
+
+    if not has_permission(
+        user, schemas.Event.model_validate(event), enums.Permission.UPDATE
+    ):
+        raise ForbiddenActionError()
+
+    event.away_score = data.away_score
+    event.home_score = data.home_score
+    await event.save()
+
+    event_score = await models.EventScore.create(
+        away_score=data.away_score, home_score=data.home_score, event_id=event.id
+    )
+
+    conditional_set(event_score, "away_delta", data.away_delta)
+    conditional_set(event_score, "home_delta", data.home_delta)
+    conditional_set(event_score, "comment", data.comment)
+
+    await event_score.save()
+
+    schema_event = schemas.Event.model_validate(event)
+
+    mm = MessageManager(user, f"event-{id}")
+    await mm.send_message(
+        "update",
+        f"Event {id} updated",
+        data=json.loads(schemas.Event.model_dump_json(schema_event)),
+    )
+
+    return schema_event

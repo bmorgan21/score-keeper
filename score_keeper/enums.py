@@ -37,8 +37,3 @@ class EventStatus(EnumStr):
     NOT_STARTED = "not-started"
     IN_PROGRESS = "in-progress"
     ENDED = "ended"
-
-
-class HomeAway(EnumStr):
-    AWAY = "away"
-    HOME = "home"

@@ -7,3 +7,7 @@ from .team import *
 from .token import *
 from .user import *
 from .utils import *
+
+
+class Object(object):
+    pass
