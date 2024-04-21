@@ -1,7 +1,9 @@
+import json
 from typing import Union
 
 from score_keeper import enums, models, schemas
 from score_keeper.lib.error import ActionError, ForbiddenActionError
+from score_keeper.lib.message_manager import MessageManager
 
 from .helpers import conditional_set, handle_orm_errors
 
@@ -77,6 +79,13 @@ async def create(user: schemas.User, data: schemas.EventCreate) -> schemas.Event
 
     await event.save()
 
+    await competitor_create(
+        user, event.id, schemas.CompetitorCreate(home_away=enums.HomeAway.AWAY)
+    )
+    await competitor_create(
+        user, event.id, schemas.CompetitorCreate(home_away=enums.HomeAway.HOME)
+    )
+
     return schemas.Event.model_validate(event)
 
 
@@ -150,5 +159,16 @@ async def competitor_update(
     conditional_set(competitor, "score", data.score)
 
     await competitor.save()
+
+    event = get(
+        user, id, options=schemas.EventGetOptions(resolves=["competitors__team"])
+    )
+
+    mm = MessageManager(user, f"event-{event.id}")
+    await mm.send_message(
+        "update",
+        f"Event {event.id} updated",
+        data=json.loads(schemas.Event.model_dump_json(event)),
+    )
 
     return schemas.Competitor.model_validate(competitor)

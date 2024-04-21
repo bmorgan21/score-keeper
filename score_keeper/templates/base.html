@@ -30,6 +30,10 @@
                             href="{{ url_for('post.index', status='published') }}">Blog</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if tab =='event' %}active{% endif %}"
+                            href="{{ url_for('event.index', status='in-progress') }}">Events</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if tab =='chat' %}active{% endif %}"
                             href="{{ url_for('chat.index') }}">Chat Demo</a>
                     </li>

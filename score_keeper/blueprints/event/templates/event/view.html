@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="col-4 bg-primary p-5">
+        <div class="fs-1" id="away-score">16</div>
+        <div class="fs-4" id="away-name">Away</div>
+    </div>
+    <div class="col-4 p-5 fs-4">Period 1<br />In Progress</div>
+    <div class="col-4 bg-danger p-5">
+        <div class="fs-1" id="home-score">9</div>
+        <div class="fs-4" id="home-name">Home</div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script type="text/javascript">
+    function onmessageCallback(message) {
+        const obj = JSON.parse(message);
+        var sessionId = obj['session_id'];
+
+        if (obj['type'] == 'update') {
+            var data = obj['data']
+            console.log(data)
+
+            /*
+            var existing = document.querySelector('span.id-' + sessionId);
+            if (!existing) {
+                const viewers = document.querySelector('div.viewers');
+                const span = document.createElement('span');
+                span.classList.add(`id-${sessionId}`);
+                span.classList.add('me-1');
+                span.innerHTML = `<img title="${data['name']}" width="32" height="32" class="rounded-circle" src="${data['picture']}" />`
+                viewers.appendChild(span);
+            }
+            */
+        }
+    }
+
+    initWS("{{ url_for('event.ws', id=event.id, SESSION_ID=uuid4()) }}", onmessageCallback);
+</script>
+{% endblock script %}

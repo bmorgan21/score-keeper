@@ -3,46 +3,49 @@
 
 
 {% block content %}
-<div class="col-12 col-lg-8">
+<div>
     <div class="float-end mt-2">
-        <a class="btn btn-primary btn-sm" href="{{ url_for('.create') }}"><i class="bi bi-file-earmark-plus"></i> Create
+        <a class="btn btn-primary btn-sm ajax-modal" href="{{ url_for('.create') }}"><i
+                class="bi bi-file-earmark-plus"></i> Create
             Event</a>
     </div>
     <ul class="nav nav-underline mb-2">
         <li class="nav-item">
-            <a class="nav-link {% if subtab == 'published' %}active{% endif %}" aria-current="page"
-                href="{{ url_for('event.index', status='published') }}">All Events</a>
+            <a class="nav-link {% if subtab == 'in-progress' %}active{% endif %}" aria-current="page"
+                href="{{ url_for('event.index', status='in-progress') }}">In Progress Events</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if subtab == 'mine-published' %}active{% endif %}"
-                href="{{ url_for('event.index', status='published', author_id=current_user.id) }}">My Published
-                Events</a>
+            <a class="nav-link {% if subtab == 'not-started' %}active{% endif %}"
+                href="{{ url_for('event.index', status='not-started') }}">Not Started Events</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if subtab == 'mine-draft' %}active{% endif %}"
-                href="{{ url_for('event.index', status='draft', author_id=current_user.id) }}">My Pending
-                Events</a>
+            <a class="nav-link {% if subtab == 'ended' %}active{% endif %}"
+                href="{{ url_for('event.index', status='ended') }}">Ended Events</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'mine-None' %}active{% endif %}"
+                href="{{ url_for('event.index', created_by_id=current_user.id) }}">My Events</a>
         </li>
     </ul>
 
-    <div class="my-3 p-3 pt-0 bg-body rounded shadow-sm">
+    <div class="row g-3">
         {% for event in resultset.events %}
-        <div class="d-flex text-body-secondary pt-3">
-            {{ macros.user_icon(event.created_by, 32, "me-2")}}
-            <div class="pb-3 mb-0 small lh-sm {% if not loop.last %}border-bottom {% endif %}flex-grow-1">
-                <div class="d-flex justify-content-between">
-                    <a class="fw-bold" href="{{ url_for('event.view', id=event.id) }}">{{ event.title }}</a>
-                </div>
-                <span class="d-block"></span>
-            </div>
-            <div class="pb-3 mb-0 {% if not loop.last %}border-bottom {% endif %}small lh-sm flex-shrink-0">
-                <div class="text-muted text-end">
-                    {% if event.status == "published" %}
-                    <strong>Published</strong><br /> {{ event.published_at|ago }}
-                    {% else %}
-                    <strong>Updated</strong><br /> {{ event.modified_at|ago }}
-                    {% endif %}
-                </div>
+        <div class="col-6">
+            <div class="text-body-secondary p-3 bg-body rounded shadow-sm">
+                <a href="{{ url_for('event.view', id=event.id) }}">
+                    {% for c in event.competitors|sort(attribute='home_away') %}
+                    <div class="row">
+                        <div class="col-10">{{ c.team.name|default(c.home_away|title) }}</div>
+                        <div id="competitor-{{ c.id }}-score" class="col-2 text-end">{{ c.score }}</div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="pt-3 mb-0 small lh-sm flex-shrink-0">
+                        <div class="text-muted text-end">
+                            <strong>Last Updated:</strong> {{ event.modified_at|ago }}
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
         {% else %}

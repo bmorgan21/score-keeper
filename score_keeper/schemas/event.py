@@ -82,6 +82,7 @@ class Event(BaseModel):
 class EventFilterField(enums.EnumStr):
     ID_IN = "id__in"
     STATUS = "_status"
+    CREATED_BY_ID = "created_by_id"
 
 
 class EventFilter(BaseModel):
@@ -129,6 +130,7 @@ class EventQueryString(BaseModel):
     sort: Optional[EventQueryStringSort] = EventQueryStringSort.MODIFIED_AT_DESC
     id__in: Optional[List[int]] = None
     status: Optional[enums.EventStatus] = None
+    created_by_id: Optional[int] = None
     pp: Optional[int] = 10
     p: Optional[int] = 1
     resolves: Optional[List[EventResolve]] = []
