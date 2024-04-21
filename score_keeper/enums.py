@@ -31,3 +31,9 @@ class Permission(EnumStr):
 class TokenType(EnumStr):
     WEB = "web"
     API = "api"
+
+
+class EventStatus(EnumStr):
+    NOT_STARTED = "not-started"
+    IN_PROGRESS = "in-progress"
+    ENDED = "ended"

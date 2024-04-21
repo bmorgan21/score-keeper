@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+
+{% block content %}
+<div>
+    <div class="float-end mt-2">
+        <a class="btn btn-primary btn-sm ajax-modal" href="{{ url_for('.create') }}"><i
+                class="bi bi-file-earmark-plus"></i> Create
+            Event</a>
+    </div>
+    <ul class="nav nav-underline mb-2">
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'in-progress' %}active{% endif %}" aria-current="page"
+                href="{{ url_for('event.index', status='in-progress') }}">In Progress Events</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'not-started' %}active{% endif %}"
+                href="{{ url_for('event.index', status='not-started') }}">Not Started Events</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'ended' %}active{% endif %}"
+                href="{{ url_for('event.index', status='ended') }}">Ended Events</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if subtab == 'mine-None' %}active{% endif %}"
+                href="{{ url_for('event.index', created_by_id=current_user.id) }}">My Events</a>
+        </li>
+    </ul>
+
+    <div class="row g-3">
+        {% for event in resultset.events %}
+        <div class="col-6">
+            <div class="p-3 bg-body rounded shadow-sm">
+                <a class="text-decoration-none text-primary-emphasis" href="{{ url_for('event.view', id=event.id) }}">
+                    <div class="row">
+                        <div class="col-10">{{ event.away_team_name }}</div>
+                        <div id="away-score" class="col-2 text-end">{{ event.away_score }}</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-10">{{ event.home_team_name }}</div>
+                        <div id="home-score" class="col-2 text-end">{{ event.home_score }}</div>
+                    </div>
+
+                    <div class="row pt-2 small text-secondary">
+                        <div class="col-6">
+                            [ {{ event.verbose_status }} ]
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Last Updated:</strong> {{ event.modified_at|ago }}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="pt-3">
+            No Events Found.
+        </div>
+        {% endfor %}
+    </div>
+
+    {{ macros.pagination(resultset.pagination.current_page, resultset.pagination.num_pages, relative_url_for) }}
+</div>
+{% endblock content %}

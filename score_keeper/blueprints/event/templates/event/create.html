@@ -1,0 +1,37 @@
+{% extends base_template|default('base.html', true) %}
+{% import 'macros.html' as macros %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="row justify-content-md-center">
+        <div class="col-md-12 col-lg-8">
+            <h3>{% block title %}{% if post %}Edit{% else %}Create{% endif %} Event</h3>{% endblock title %}
+            <form {% block form_details %}class="ajax" target="_top"
+                method="{% if user %}PATCH{% else %}POST{% endif %}"
+                action="{% if user %}{{ url_for('api.event.update', id=event.id) }}{% else %}{{ url_for('api.event.create') }}{% endif %}"
+                {% endblock form_details %}>
+
+                {% block body %}
+                {{ macros.text('season', event) }}
+                {% endblock body %}
+
+                <div class="text-end">
+                    <a class="btn btn-secondary"
+                        href="{{ url_for('.view', id=post.id) if post else url_for('.index') }}">
+                        Cancel
+                    </a>
+
+                    {% block buttons %}
+                    <button type="submit" class="btn btn-primary">
+                        <span class="d-none loading-spinner spinner-border spinner-border-sm"></span>
+                        Submit
+                    </button>
+                    {% endblock buttons %}
+
+                    <div class="status"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -64,7 +64,7 @@ Upgrade the DB schema
 
 Start the server
 
-    quart start
+    quart run
 
 # Resetting the DB
 

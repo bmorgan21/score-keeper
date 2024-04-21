@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="col-12 col-md-4">
+        <a id="away" href="{{ url_for('api.event.score', id=event.id) }}" data-method="POST" data-callback="updateEvent"
+            data-func="getScoreData" class="btn btn-primary d-block p-5 {% if not can_edit %}disabled{% endif %}">
+            <div class="fs-1" id="away-score">
+                {{ event.away_score }}
+            </div>
+            <div class="fs-4" id="away-name">{{ event.away_team_name }}</div>
+        </a>
+    </div>
+    <div class="col-12 col-md-4 p-5 fs-4">
+        Period <span id="event-period">{{ event.period }}</span><br /><span id="event-status">{{ event.verbose_status
+            }}</span>
+    </div>
+    <div class="col-12 col-md-4">
+        <a id="home" href="{{ url_for('api.event.score', id=event.id) }}" data-method="POST" data-callback="updateEvent"
+            data-func="getScoreData" class="btn btn-danger d-block p-5 {% if not can_edit %}disabled{% endif %}">
+            <div class="fs-1" id="home-score">{{ event.home_score }}</div>
+            <div class="fs-4" id="home-name">{{ event.home_team_name }}</div>
+        </a>
+    </div>
+</div>
+
+{#
+<div>
+    {% for score in event.scores %}
+    <div>[{{ score.created_at|format_datetime }}] {{score.away_delta }} {{ score.home_delta }} {{ score.away_score }} -
+        {{ score.home_score }}</div>
+    {% endfor %}
+</div>
+#}
+{% endblock content %}
+
+{% block script %}
+<script type="text/javascript">
+    function getScoreData(link) {
+        var data = {
+            away_score: parseInt(document.getElementById('away-score').innerText),
+            home_score: parseInt(document.getElementById('home-score').innerText)
+        }
+
+        if (link.id == 'away') {
+            data['away_delta'] = 1;
+            data['away_score'] += data['away_delta'];
+        } else if (link.id == 'home') {
+            data['home_delta'] = 1;
+            data['home_score'] += data['home_delta'];
+        }
+
+        return data;
+    }
+
+    function updateEvent(link, data) {
+        document.getElementById('away-score').innerText = data.away_score;
+        document.getElementById('home-score').innerText = data.home_score;
+        document.getElementById('event-period').innerText = data.period;
+    }
+
+    function onmessageCallback(message) {
+        const obj = JSON.parse(message);
+        var sessionId = obj['session_id'];
+
+        if (obj['type'] == 'update') {
+            var data = obj['data']
+
+            updateEvent(null, data);
+        }
+    }
+
+    initWS("{{ url_for('event.ws', id=event.id, SESSION_ID=uuid4()) }}", onmessageCallback);
+</script>
+{% endblock script %}

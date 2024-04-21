@@ -58,6 +58,7 @@ def register_blueprints(app):
     from score_keeper.blueprints.auth import blueprint as auth_blueprint
     from score_keeper.blueprints.auth_google import blueprint as auth_google_blueprint
     from score_keeper.blueprints.chat import blueprint as chat_blueprint
+    from score_keeper.blueprints.event import blueprint as event_blueprint
     from score_keeper.blueprints.marketing import blueprint as marketing_blueprint
     from score_keeper.blueprints.post import blueprint as post_blueprint
     from score_keeper.blueprints.user import blueprint as user_blueprint
@@ -68,6 +69,7 @@ def register_blueprints(app):
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(auth_google_blueprint, url_prefix="/auth/google")
     app.register_blueprint(chat_blueprint, url_prefix="/chat")
+    app.register_blueprint(event_blueprint, url_prefix="/event")
     app.register_blueprint(marketing_blueprint)
     app.register_blueprint(post_blueprint, url_prefix="/post")
     app.register_blueprint(user_blueprint, url_prefix="/user")
@@ -88,7 +90,7 @@ def create_app(**config_overrides):
 
     app.config.from_object(settings)
     app.config.update(config_overrides)
-    
+
     QuartSchema(app)
     auth_manager = MyQuartAuth(app)
     auth_manager.user_class = AuthUser
