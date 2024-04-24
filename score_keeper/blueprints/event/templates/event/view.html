@@ -13,7 +13,11 @@
     </div>
     <div class="col-12 col-md-4 p-5 fs-4">
         Period <span id="event-period">{{ event.period }}</span><br /><span id="event-status">{{ event.verbose_status
-            }}</span>
+            }}</span><br />
+        {% if can_edit %}
+        <a class="btn btn-primary btn-sm ajax-modal" href="{{ url_for('.update', id=event.id) }}"><i
+                class="bi bi-pencil"></i> Edit Event</a>
+        {% endif %}
     </div>
     <div class="col-12 col-md-4">
         <a id="home" href="{{ url_for('api.event.score', id=event.id) }}" data-method="POST" data-callback="updateEvent"
@@ -57,6 +61,7 @@
         document.getElementById('away-score').innerText = data.away_score;
         document.getElementById('home-score').innerText = data.home_score;
         document.getElementById('event-period').innerText = data.period;
+        document.getElementById('event-status').innerText = data.verbose_status;
     }
 
     function onmessageCallback(message) {

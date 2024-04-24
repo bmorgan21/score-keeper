@@ -12,7 +12,9 @@
                 {% endblock form_details %}>
 
                 {% block body %}
-                {{ macros.text('season', event) }}
+                {{ macros.text('away_score', event, label='Away Score') }}
+                {{ macros.text('home_score', event, label='Home Score') }}
+                {{ macros.select('status', event, status_options) }}
                 {% endblock body %}
 
                 <div class="text-end">

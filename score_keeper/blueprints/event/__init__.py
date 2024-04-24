@@ -30,7 +30,7 @@ async def index(query_args: schemas.EventQueryString):
         subtab = f"mine-{subtab}"
 
     return await render_template(
-        "event/index.html", resultset=resultset, tab="blog", subtab=subtab
+        "event/index.html", resultset=resultset, tab="event", subtab=subtab
     )
 
 
@@ -81,12 +81,15 @@ async def update(id: int):
     if not actions.event.has_permission(user, event, enums.Permission.UPDATE):
         raise Forbidden()
 
+    modal = 1 if "modal" in request.args else None
+
     return await render_template(
-        "event/create.html",
+        "event/update.html",
         event=event,
         status_options=[(x.value.title(), x.value) for x in enums.EventStatus],
         r=url_for(".view", id=event.id),
-        tab="blog",
+        tab="event",
+        base_template="modal_base.html" if modal else None,
     )
 
 

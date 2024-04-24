@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from pydantic import field_validator
+from pydantic import computed_field, field_validator
 
 from score_keeper import enums
 
@@ -95,23 +95,20 @@ class Event(BaseModel):
         remove_reverse_relation
     )
 
+    @computed_field
     @property
-    def away_team_name(self):
+    def away_team_name(self) -> str:
         return self.away_team.name if self.away_team else "Away"
 
+    @computed_field
     @property
-    def home_team_name(self):
+    def home_team_name(self) -> str:
         return self.home_team.name if self.home_team else "Home"
 
+    @computed_field
     @property
-    def verbose_status(self):
-        if self.status == "not-started":
-            return "Not Started"
-        elif self.status == "in-progress":
-            return "In Progress"
-        elif self.status == "ended":
-            return "Ended"
-        return self.status
+    def verbose_status(self) -> str:
+        return self.status.title()
 
 
 class EventFilterField(enums.EnumStr):
