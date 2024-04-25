@@ -18,11 +18,14 @@ async def login():
             )
         )
 
+    modal = 1 if "modal" in request.args else None
+
     return await render_template(
         "auth/login.html",
         r=request.args.get(
             "r", url_for(current_app.config["AUTH_LOGIN_SUCCESS_ENDPOINT"])
         ),
+        base_template="modal_base.html" if modal else None,
     )
 
 

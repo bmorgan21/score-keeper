@@ -12,7 +12,9 @@
                 {% endblock form_details %}>
 
                 {% block body %}
+                {{ macros.select('away_team_id', event, team_options, label='Away Team') }}
                 {{ macros.text('away_score', event, label='Away Score') }}
+                {{ macros.select('home_team_id', event, team_options, label='Home Team') }}
                 {{ macros.text('home_score', event, label='Home Score') }}
                 {{ macros.select('status', event, status_options) }}
                 {% endblock body %}

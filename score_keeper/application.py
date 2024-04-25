@@ -61,6 +61,7 @@ def register_blueprints(app):
     from score_keeper.blueprints.event import blueprint as event_blueprint
     from score_keeper.blueprints.marketing import blueprint as marketing_blueprint
     from score_keeper.blueprints.post import blueprint as post_blueprint
+    from score_keeper.blueprints.team import blueprint as team_blueprint
     from score_keeper.blueprints.user import blueprint as user_blueprint
 
     # pylint: enable=import-outside-toplevel
@@ -72,6 +73,7 @@ def register_blueprints(app):
     app.register_blueprint(event_blueprint, url_prefix="/event")
     app.register_blueprint(marketing_blueprint)
     app.register_blueprint(post_blueprint, url_prefix="/post")
+    app.register_blueprint(team_blueprint, url_prefix="/team")
     app.register_blueprint(user_blueprint, url_prefix="/user")
 
 
@@ -191,7 +193,13 @@ def create_app(**config_overrides):
     @app.errorhandler(Unauthorized)
     async def handle_response_unathorized_error(error):
         if has_request_context() and request.accept_mimetypes.accept_html:
-            return redirect(url_for("auth.login", r=request.url))
+            return redirect(
+                url_for(
+                    "auth.login",
+                    r=request.url,
+                    modal=1 if "modal" in request.args else None,
+                )
+            )
 
         return (
             schemas.Error(loc="auth_id", type="auth.unauthorized", msg=str(error)),

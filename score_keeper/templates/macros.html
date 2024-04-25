@@ -74,7 +74,7 @@
 {% macro select(name, obj, options, placeholder=None, label=None, class="mb-3") -%}
 {% set selected = obj|default(none)|attr(name)|none_to_empty %}
 <div class="form-floating {{ class }}">
-    <select name="status" class="form-select" id="floating{{ name|title }}">
+    <select name="{{ name }}" class="form-select" id="floating{{ name|title }}">
         <option value>[Select {{ name|title }}]</option>
         {% for label, value in options %}
         <option value="{{ value }}" {{ 'SELECTED' if selected==value }}>

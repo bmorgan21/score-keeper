@@ -5,15 +5,14 @@
 <div class="container mt-4 mb-4">
     <div class="row justify-content-md-center">
         <div class="col-md-12 col-lg-8">
-            <h3>{% block title %}{% if event and event.id %}Edit{% else %}Create{% endif %} Event</h3>{% endblock title
-            %}
+            <h3>{% block title %}{% if team and team.id %}Edit{% else %}Create{% endif %} Team</h3>{% endblock title %}
             <form {% block form_details %}class="ajax" target="_top"
-                method="{% if event and event.id %}PATCH{% else %}POST{% endif %}"
-                action="{% if event and event.id %}{{ url_for('api.event.update', id=event.id) }}{% else %}{{ url_for('api.event.create') }}{% endif %}"
+                method="{% if team and team.id %}PATCH{% else %}POST{% endif %}"
+                action="{% if team and team.id %}{{ url_for('api.team.update', id=team.id) }}{% else %}{{ url_for('api.team.create') }}{% endif %}"
                 {% endblock form_details %}>
 
                 {% block body %}
-                {{ macros.text('season', event) }}
+                {{ macros.text('name', team) }}
                 {% endblock body %}
 
                 <div class="text-end">

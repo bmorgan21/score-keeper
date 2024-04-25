@@ -58,6 +58,7 @@ async def create():
     now = datetime.datetime.now(datetime.UTC)
 
     event = schemas.Object()
+    event.id = 0
     event.season = now.year
 
     modal = 1 if "modal" in request.args else None
@@ -83,10 +84,14 @@ async def update(id: int):
 
     modal = 1 if "modal" in request.args else None
 
+    query_args = schemas.EventQueryString(pp=100)
+    team_rs = await actions.team.query(user, query_args.to_query())
+
     return await render_template(
         "event/update.html",
         event=event,
         status_options=[(x.value.title(), x.value) for x in enums.EventStatus],
+        team_options=[(t.name, t.id) for t in team_rs.teams],
         r=url_for(".view", id=event.id),
         tab="event",
         base_template="modal_base.html" if modal else None,

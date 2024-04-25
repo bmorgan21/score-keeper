@@ -1,20 +1,26 @@
-{% extends 'base.html' %}
+{% extends base_template|default('base.html', true) %}
 {% import 'macros.html' as macros %}
 
 {% block content %}
 <div class="form-signin w-100 m-auto">
     <div style="width:330px" class="m-auto">
-        <form class="ajax" method="POST" action="{{ url_for('api.auth.token_create') }}">
+        <form {% block form_details %}class="ajax" target="_top" method="POST"
+            action="{{ url_for('api.auth.token_create') }}" {% endblock form_details %}>
             <input name="r" type="hidden" value="{{ r }}" />
-            <h3 class="mb-3 fw-normal">Log In</h3>
+            <h3 class="mb-3 fw-normal">{% block title %}Log In{% endblock title %}</h3>
 
+            {% block body %}
             {{ macros.text('email', none, placeholder='name@example.com', label='Email Address') }}
             {{ macros.text('password', none, type='password') }}
+            {% endblock body %}
 
+            {% block close_button %}{% endblock close_button %}
+            {% block buttons %}
             <button class="w-100 btn btn-lg btn-primary" type="submit">
                 <span class="d-none loading-spinner spinner-border spinner-border-sm"></span>
                 Log in
             </button>
+            {% endblock buttons %}
             <div class="status"></div>
         </form>
     </div>

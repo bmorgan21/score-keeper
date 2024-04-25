@@ -59,9 +59,9 @@ class EventPatch(BaseModel):
     period: PERIOD_VALIDATOR = NOTSET
     season: SEASON_VALIDATOR = NOTSET
     status: STATUS_VALIDATOR = NOTSET
-    away_team_id: int = NOTSET
+    away_team_id: Optional[int] = NOTSET
     away_score: SCORE_VALIDATOR = NOTSET
-    home_team_id: int = NOTSET
+    home_team_id: Optional[int] = NOTSET
     home_score: SCORE_VALIDATOR = NOTSET
 
 

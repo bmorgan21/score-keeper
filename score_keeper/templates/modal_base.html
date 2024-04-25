@@ -9,7 +9,8 @@
         </div>
         <div class="modal-footer d-flex">
             <div class="status flex-grow-1 align-items-center flex-column"></div>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            {% block close_button %}<button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close</button>{% endblock close_button %}
             {% block buttons %}{% endblock buttons %}
         </div>
     </form>
