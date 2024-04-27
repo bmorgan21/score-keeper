@@ -702,8 +702,8 @@ def main():
     a.register('settings_menu', SettingsMenu)
     a.register('system_menu', SystemMenu)
     a.register('timer', Timer)
-    left_button.irq(debounce(400, lambda x: a.handle_button(LEFT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
-    right_button.irq(debounce(400, lambda x: a.handle_button(RIGHT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
+    left_button.irq(debounce(700, lambda x: a.handle_button(LEFT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
+    right_button.irq(debounce(700, lambda x: a.handle_button(RIGHT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
     a.push('main_menu')
     a.draw()
     
