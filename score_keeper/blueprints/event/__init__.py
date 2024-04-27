@@ -84,7 +84,7 @@ async def update(id: int):
 
     modal = 1 if "modal" in request.args else None
 
-    query_args = schemas.EventQueryString(pp=100)
+    query_args = schemas.TeamQueryString(pp=100)
     team_rs = await actions.team.query(user, query_args.to_query())
 
     return await render_template(

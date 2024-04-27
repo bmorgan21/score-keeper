@@ -133,6 +133,8 @@ class EventSort(enums.EnumStr):
     CREATED_AT_DESC = "-created_at"
     MODIFIED_AT_ASC = "modified_at"
     MODIFIED_AT_DESC = "-modified_at"
+    DATETIME_ASC = "datetime"
+    PERIOD_ASC = "period"
 
 
 class EventResolve(enums.EnumStr):
@@ -161,10 +163,11 @@ class EventQueryStringSort(enums.EnumStr):
     CREATED_AT_DESC = "-created_at__-id"
     MODIFIED_AT_ASC = "modified_at__created_at__id"
     MODIFIED_AT_DESC = "-modified_at__-created_at__-id"
+    DATETIME_ASC = "datetime__period__created_at"
 
 
 class EventQueryString(BaseModel):
-    sort: Optional[EventQueryStringSort] = EventQueryStringSort.MODIFIED_AT_DESC
+    sort: Optional[EventQueryStringSort] = EventQueryStringSort.DATETIME_ASC
     id__in: Optional[List[int]] = None
     status: Optional[enums.EventStatus] = None
     created_by_id: Optional[int] = None
