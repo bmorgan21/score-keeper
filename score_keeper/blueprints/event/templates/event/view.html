@@ -11,7 +11,10 @@
             <div class="fs-4" id="away-name">{{ event.away_team_name }}</div>
         </a>
     </div>
-    <div class="col-12 col-md-4 p-5 fs-4">
+    <div class="col-12 col-md-4 py-3 fs-4">
+        <span id="event-datetime">{{ event.datetime|format_datetime(format="%b %d, %Y @ %I:%M %p", local=False) if
+            event.datetime else 'n/a'
+            }}</span><br />
         Period <span id="event-period">{{ event.period }}</span><br /><span id="event-status">{{ event.verbose_status
             }}</span><br />
         {% if can_edit %}

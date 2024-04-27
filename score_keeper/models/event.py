@@ -35,6 +35,8 @@ class Event(TimestampMixin, Model):
         "models.User", related_name="events"
     )
 
+    datetime = fields.DatetimeField(null=True)
+
     @property
     def status(self):
         return self._status

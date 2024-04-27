@@ -16,6 +16,8 @@
                 {{ macros.text('away_score', event, label='Away Score') }}
                 {{ macros.select('home_team_id', event, team_options, label='Home Team') }}
                 {{ macros.text('home_score', event, label='Home Score') }}
+                {{ macros.text('period', event) }}
+                {{ macros.text('datetime', event) }}
                 {{ macros.select('status', event, status_options) }}
                 {% endblock body %}
 

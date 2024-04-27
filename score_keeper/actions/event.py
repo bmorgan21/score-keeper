@@ -75,7 +75,9 @@ async def create(user: schemas.User, data: schemas.EventCreate) -> schemas.Event
     if not has_permission(user, None, enums.Permission.CREATE):
         raise ForbiddenActionError()
 
-    event = await models.Event.create(season=data.season, created_by_id=user.id)
+    event = await models.Event.create(
+        season=data.season, datetime=data.datetime, created_by_id=user.id
+    )
 
     await event.save()
 
@@ -107,6 +109,7 @@ async def update(
 
     conditional_set(event, "season", data.season)
     conditional_set(event, "period", data.period)
+    conditional_set(event, "datetime", data.datetime)
     conditional_set(event, "away_team_id", data.away_team_id)
     conditional_set(event, "away_score", data.away_score)
     conditional_set(event, "home_team_id", data.home_team_id)

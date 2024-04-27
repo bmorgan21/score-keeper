@@ -1,7 +1,7 @@
-from datetime import datetime
+import datetime as dt
 from typing import List, Optional, Union
 
-from pydantic import computed_field, field_validator
+from pydantic import NaiveDatetime, computed_field, field_validator
 
 from score_keeper import enums
 
@@ -21,6 +21,7 @@ PERIOD_VALIDATOR = int
 SCORE_VALIDATOR = int
 SEASON_VALIDATOR = int
 STATUS_VALIDATOR = enums.EventStatus
+DATETIME_VALIDATOR = dt.datetime
 
 
 class EventScoreCreate(BaseModel):
@@ -35,8 +36,8 @@ class EventScoreCreate(BaseModel):
 
 class EventScore(BaseModel):
     id: int
-    created_at: datetime
-    modified_at: datetime
+    created_at: dt.datetime
+    modified_at: dt.datetime
 
     away_delta: Optional[int]
     home_delta: Optional[int]
@@ -51,6 +52,7 @@ class EventScore(BaseModel):
 
 class EventCreate(BaseModel):
     season: SEASON_VALIDATOR
+    datetime: Optional[DATETIME_VALIDATOR] = None
     away_team_id: Optional[int] = None
     home_team_id: Optional[int] = None
 
@@ -58,6 +60,7 @@ class EventCreate(BaseModel):
 class EventPatch(BaseModel):
     period: PERIOD_VALIDATOR = NOTSET
     season: SEASON_VALIDATOR = NOTSET
+    datetime: Optional[DATETIME_VALIDATOR] = NOTSET
     status: STATUS_VALIDATOR = NOTSET
     away_team_id: Optional[int] = NOTSET
     away_score: SCORE_VALIDATOR = NOTSET
@@ -69,10 +72,11 @@ class Event(BaseModel):
     id: int
     period: int
     season: int
+    datetime: Optional[DATETIME_VALIDATOR]
     status: str
-    status_as_of: datetime
-    created_at: datetime
-    modified_at: datetime
+    status_as_of: dt.datetime
+    created_at: dt.datetime
+    modified_at: dt.datetime
 
     created_by_id: int
     created_by: Optional[UserPublic]

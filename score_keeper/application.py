@@ -243,8 +243,9 @@ def create_app(**config_overrides):
         return Markup(markdown.markdown(value))
 
     @app.template_filter(name="format_datetime")
-    def format_datetime(value, format="%m/%d/%Y %H:%M:%S"):
-        value = utc_to_local(value)
+    def format_datetime(value, format="%m/%d/%Y %H:%M:%S", local=True):
+        if local:
+            value = utc_to_local(value)
         return value.strftime(format)
 
     @app.template_filter(name="none_to_empty")
