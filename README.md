@@ -31,6 +31,11 @@ Install Docker and Add Permissions
     $ curl -sSL https://get.docker.com | sh
     $ sudo gpasswd -a $USER docker
     $ sudo shutdown -r now
+
+Configure Duck DNS
+
+    Follow the instructions here
+    https://www.duckdns.org/install.jsp?tab=pi
     
 # Configuring the Server
 
