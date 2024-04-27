@@ -11,35 +11,35 @@
     </div>
     <h1>Teams</h1>
     <hr />
+</div>
 
-    <div class="row g-3">
-        {% for team in resultset.teams %}
-        <div class="col-6">
-            <div class="p-3 bg-body rounded shadow-sm">
-                <div class="row">
-                    <div class="col-10">{{ team.name }}</div>
+<div class="row g-3">
+    {% for team in resultset.teams %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="p-3 bg-body rounded shadow-sm">
+            <div class="row">
+                <div class="col-10">{{ team.name }}</div>
+            </div>
+
+            <div class="row pt-2 small text-secondary">
+                <div class="col-6">
+                    {% if can_edit[team.id] %}
+                    <a class="btn btn-primary btn-sm ajax-modal" href="{{ url_for('.update', id=team.id) }}"><i
+                            class="bi bi-pencil"></i> Edit Team</a>
+                    {% endif %}
                 </div>
-
-                <div class="row pt-2 small text-secondary">
-                    <div class="col-6">
-                        {% if can_edit[team.id] %}
-                        <a class="btn btn-primary btn-sm ajax-modal" href="{{ url_for('.update', id=team.id) }}"><i
-                                class="bi bi-pencil"></i> Edit Team</a>
-                        {% endif %}
-                    </div>
-                    <div class="col-6 text-end">
-                        <strong>Last Updated:</strong> {{ team.modified_at|ago }}
-                    </div>
+                <div class="col-6 text-end">
+                    <strong>Last Updated:</strong> {{ team.modified_at|ago }}
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="pt-3">
-            No Teams Found.
-        </div>
-        {% endfor %}
     </div>
-
-    {{ macros.pagination(resultset.pagination.current_page, resultset.pagination.num_pages, relative_url_for) }}
+    {% else %}
+    <div class="pt-3">
+        No Teams Found.
+    </div>
+    {% endfor %}
 </div>
+
+{{ macros.pagination(resultset.pagination.current_page, resultset.pagination.num_pages, relative_url_for) }}
 {% endblock content %}
