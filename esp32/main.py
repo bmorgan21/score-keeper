@@ -669,15 +669,16 @@ def parse_request(conn):
 
 DEBOUNCE = {}
 
-def debounce(window, func):
+def debounce(button, window, func):
     def wrapper(*args):
-        last_event = DEBOUNCE.get(func)
-        now = time.ticks_ms()
-        
-        if last_event is None or now - last_event > window:
-            DEBOUNCE[func] = now
-            func(*args)
-
+        if button.value() == 1:
+            last_event = DEBOUNCE.get(func)
+            now = time.ticks_ms()
+            
+            if last_event is None or now - last_event > window:
+                DEBOUNCE[func] = now
+                func(*args)
+            
     return wrapper
 
 def main():
@@ -702,12 +703,11 @@ def main():
     a.register('settings_menu', SettingsMenu)
     a.register('system_menu', SystemMenu)
     a.register('timer', Timer)
-    left_button.irq(debounce(700, lambda x: a.handle_button(LEFT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
-    right_button.irq(debounce(700, lambda x: a.handle_button(RIGHT_BUTTON_INDEX)), trigger=Pin.IRQ_RISING)
     a.push('main_menu')
     a.draw()
     
-
+    handle_left_button = debounce(left_button, 300, lambda: a.handle_button(LEFT_BUTTON_INDEX))
+    handle_right_button = debounce(right_button, 300, lambda: a.handle_button(RIGHT_BUTTON_INDEX))
     
     while True:
         if touch.available():
@@ -731,6 +731,9 @@ def main():
                     a.handle_click(touch.x, touch.y)
                 elif touch.get_gesture() == 'SWIPE RIGHT':
                     a.pop()
+        else:
+            handle_left_button()
+            handle_right_button()
 
         if a.has_changes():
             print('redrawing')
@@ -743,5 +746,9 @@ def main():
             sleep = True
         
         time.sleep(0.01)
-    
-main()
+   
+try:
+    main()
+except Exception as e:
+    print('EXCEPTION', e)
+    machine.reset()
