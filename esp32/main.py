@@ -28,8 +28,8 @@ fonts = {
     '16x32b': vga2_bold_16x32,
 }
 
-LEFT_BUTTON_INDEX = 0
-RIGHT_BUTTON_INDEX = 1
+LEFT_BUTTON = 'up'
+RIGHT_BUTTON = 'down'
 
 T = time.time()
 battery_level = ADC(Pin(1),atten=ADC.ATTN_6DB)
@@ -245,18 +245,18 @@ class Menu(Screen):
 
     def handle_click(self, x, y):
         if y < self.row_heights[0]:
-            self.handle_button(LEFT_BUTTON_INDEX)
+            self.handle_button(LEFT_BUTTON)
         elif 240 - y < self.row_heights[-1]:
-            self.handle_button(RIGHT_BUTTON_INDEX)
+            self.handle_button(RIGHT_BUTTON)
         else:   
             self.handle_selection(self.start_index, self.items[self.start_index+1])
     
     def handle_button(self, i):    
-        if i == RIGHT_BUTTON_INDEX:
+        if i == RIGHT_BUTTON:
             if self.start_index < len(self.items) - 3:
                 self.start_index += 1
                 self.pending_changes = True
-        elif i == LEFT_BUTTON_INDEX:
+        elif i == LEFT_BUTTON:
             if self.start_index > 0:
                 self.start_index -= 1
                 self.pending_changes = True
@@ -408,11 +408,11 @@ class ScoreBoard(Screen):
     def handle_button(self, i):
         if self.event['status'] == 'in-progress':
             delta = 1
-            if i == LEFT_BUTTON_INDEX:
+            if i == LEFT_BUTTON:
                 self.event['away_score'] += delta
                 self.pending_data.append(('score', {'away_delta': delta, 'away_score': self.event['away_score'], 'home_score': self.event['home_score']}))
                 self.pending_changes = True
-            elif i == RIGHT_BUTTON_INDEX:
+            elif i == RIGHT_BUTTON:
                 self.event['home_score'] += delta
                 self.pending_data.append(('score', {'home_delta': delta, 'away_score': self.event['away_score'], 'home_score': self.event['home_score']}))
                 self.pending_changes = True
@@ -659,7 +659,7 @@ def parse_request(conn):
     while content_length and len(data) < content_length:
         data += conn.recv(1024)
     
-    data = data.decode()
+    data = data.decode().replace('+', ' ')
     print('!! HERE', data)
     data = {y[0]: unquote(y[1]) if len(y) > 1 else None for y in [x.split('=', 1) for x in data.split('&')]}
     
@@ -681,9 +681,35 @@ def debounce(button, window, func):
             
     return wrapper
 
+class Keypad:
+    DEBOUNCE_DELAY = 300
+    
+    def __init__(self, key_map):
+        self.buttons = {}
+        self.key_map = key_map
+        self.last_press_time = 0
+        self.keys_pressed = []
+
+        for pin_id, name in self.key_map.items():
+            button = Pin(pin_id, Pin.IN, Pin.PULL_DOWN)
+            self.buttons[button] = pin_id
+            button.irq(trigger=machine.Pin.IRQ_FALLING, handler=self.button_handler)
+
+    def button_handler(self, pin):
+        current_time = time.ticks_ms()
+        if current_time-self.last_press_time > self.DEBOUNCE_DELAY:
+            self.last_press_time = current_time
+            pin_id = self.buttons[pin]
+            self.keys_pressed.append(self.key_map[pin_id])
+
+    def pop(self):
+        if self.keys_pressed:
+            return self.keys_pressed.pop(0)
+        return None
+
 def main():
-    left_button = Pin(18, Pin.IN, Pin.PULL_DOWN)
-    right_button = Pin(21, Pin.IN, Pin.PULL_DOWN)
+    key_map = {18: 'up', 21: 'down'}
+    keypad = Keypad(key_map)
       
     idle_since = time.time()
     sleep = False
@@ -705,10 +731,7 @@ def main():
     a.register('timer', Timer)
     a.push('main_menu')
     a.draw()
-    
-    handle_left_button = debounce(left_button, 300, lambda: a.handle_button(LEFT_BUTTON_INDEX))
-    handle_right_button = debounce(right_button, 300, lambda: a.handle_button(RIGHT_BUTTON_INDEX))
-    
+
     while True:
         if touch.available():
             print(
@@ -732,10 +755,12 @@ def main():
                 elif touch.get_gesture() == 'SWIPE RIGHT':
                     a.pop()
         else:
-            handle_left_button()
-            handle_right_button()
+            key_pressed = keypad.pop()
+            if key_pressed:
+               a.handle_button(key_pressed)
 
         if a.has_changes():
+            idle_since = time.time()
             print('redrawing')
             a.draw()
             
