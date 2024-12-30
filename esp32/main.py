@@ -451,7 +451,7 @@ class ScoreBoard(Screen):
 class SystemMenu(Menu):
     def __init__(self, app):
         name = 'System'
-        items = [MenuItem('Battery'), MenuItem('Power Off')]
+        items = [MenuItem('Battery'), MenuItem('Restart'), MenuItem('Power Off')]
         super().__init__(app, name, items)
         self.last_update = None
         
@@ -461,7 +461,9 @@ class SystemMenu(Menu):
                 esp32.wake_on_ext0(Pin(21, Pin.IN, Pin.PULL_DOWN), level=esp32.WAKEUP_ANY_HIGH)
                 machine.deepsleep()
             self.app.push('confirm_menu', message='Are you sure?', callback=callback)
-
+        elif item.name == 'Restart':
+            machine.reset()
+            
     def loop(self):
         level1 = 3*battery_level.read_uv()/943800
         if self.start_index == 0 and (self.last_update is None or time.time() - self.last_update > 1):
@@ -667,22 +669,8 @@ def parse_request(conn):
     return method, path, query_args, headers, data
 
 
-DEBOUNCE = {}
-
-def debounce(button, window, func):
-    def wrapper(*args):
-        if button.value() == 1:
-            last_event = DEBOUNCE.get(func)
-            now = time.ticks_ms()
-            
-            if last_event is None or now - last_event > window:
-                DEBOUNCE[func] = now
-                func(*args)
-            
-    return wrapper
-
 class Keypad:
-    DEBOUNCE_DELAY = 300
+    DEBOUNCE_DELAY = 1000
     
     def __init__(self, key_map):
         self.buttons = {}
